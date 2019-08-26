@@ -72,15 +72,20 @@ public class MainActivity extends AppCompatActivity {
         // Wipe the screen with a white color
         canvas.drawColor(Color.argb(255, 255, 255, 255));
         paint.setColor(Color.argb(255, 0, 0, 0));
+        for(int i=0;i<numberHorizontalPixels;i++){
+            canvas.drawLine(blockSize * i, 0,
+                    blockSize * i, numberVerticalPixels -1,
+                    paint);
+        }
 
-        canvas.drawLine(blockSize * 1, 0,
-                blockSize * 1, numberVerticalPixels -1,
-                paint);
+        for(int i=0;i<numberHorizontalPixels;i++){
+            canvas.drawLine(0, blockSize * i,
+                    numberHorizontalPixels -1, blockSize * i,
+                    paint);
+        }
 
-        // Draw the horizontal lines of the grid
-        canvas.drawLine(0, blockSize * 1,
-                numberHorizontalPixels -1, blockSize * 1,
-                paint);
+
+
 
         paint.setTextSize(blockSize * 2);
         paint.setColor(Color.argb(255, 0, 0, 255));
@@ -95,11 +100,55 @@ public class MainActivity extends AppCompatActivity {
 
             canvas.drawLine(i+0 ,i+0,i+1,i+1,paint);
         }
+        //printDebuggingText();
     }
 
-    void printDebuggingText() {
+    public void printDebuggingText(){
+        paint.setTextSize(blockSize);
+        canvas.drawText("numberHorizontalPixels = "
+                        + numberHorizontalPixels,
+                50, blockSize * 3, paint);
+        canvas.drawText("numberVerticalPixels = "
+                        + numberVerticalPixels,
+                50, blockSize * 4, paint);
+        canvas.drawText("blockSize = " + blockSize,
+                50, blockSize * 5, paint);
+        canvas.drawText("gridWidth = " + gridWidth,
+                50, blockSize * 6, paint);
+        canvas.drawText("gridHeight = " + gridHeight,
+                50, blockSize * 7, paint);
+        canvas.drawText("horizontalTouched = " +
+                        horizontalTouched, 50,
+                blockSize * 8, paint);
+        canvas.drawText("subHorizontalPosition = " +
+                        subHorizontalPosition, 50,
+                blockSize * 10, paint);
+        canvas.drawText("subVerticalPosition = " +
+                        subVerticalPosition, 50,
+                blockSize * 11, paint);
+        canvas.drawText("hit = " + hit,
+                50, blockSize * 12, paint);
+        canvas.drawText("shotsTaken = " +
+                        shotsTaken,
+                50, blockSize * 13, paint);
+        canvas.drawText("debugging = " + debugging,
+                50, blockSize * 12, paint);
 
 
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        Log.d("Debugging", "In onTouchEvent");
+// Has the player removed their finger from the screen?
+        if((motionEvent.getAction() &
+                MotionEvent.ACTION_MASK)
+                == MotionEvent.ACTION_UP) {
+            String x=Float.toString(motionEvent.getX());
+// Process the player's shot by passing the
+// coordinates of the player's finger to takeShot
+            Log.d("Debugging",x);
+        }
+        return true;
     }
 
 }
