@@ -88,7 +88,12 @@ public class MainActivity extends AppCompatActivity {
                     numberHorizontalPixels -1, blockSize * i,
                     paint);
         }
-
+        // Draw the player's shot
+        canvas.drawRect(horizontalTouched * blockSize,
+                verticalTouched * blockSize,
+                (horizontalTouched * blockSize) + blockSize,
+                (verticalTouched * blockSize)+ blockSize,
+                paint );
 
 
 
@@ -100,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 blockSize, blockSize * 1.75f,
                 paint);
 
-        printDebuggingText();
+       // printDebuggingText();
     }
 
     public void printDebuggingText(){
@@ -160,9 +165,8 @@ public class MainActivity extends AppCompatActivity {
         String shot_x=Float.toString(x);
         String shot_y=Float.toString(y);
         Log.d("Debugging","shot: "+shot_x+" "+shot_y);
-        int horizontalTouched = (int)x/ blockSize;
-        int verticalTouched = (int)y/ blockSize;
-        Log.d("Debugging","shot2: "+Integer.toString(horizontalTouched)+" "+Integer.toString(verticalTouched));
+         horizontalTouched = (int)x/ blockSize;
+         verticalTouched = (int)y/ blockSize;
 
         setContentView(gameView);
         canvas.drawCircle((horizontalTouched-1)*blockSize,(verticalTouched-1)*blockSize,5,paint);
