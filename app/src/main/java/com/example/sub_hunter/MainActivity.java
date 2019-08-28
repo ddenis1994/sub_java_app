@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.view.MotionEvent;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
     int gridHeight;
     float horizontalTouched = -100;
     float verticalTouched = -100;
-    int subHorizontalPosition;
-    int subVerticalPosition;
+    int subHorizontalPosition=20;
+    int subVerticalPosition=20;
     boolean hit = false;
     int shotsTaken;
     int distanceFromSub;
@@ -42,17 +42,22 @@ public class MainActivity extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_main);
         Log.d("Debugging","in onCreath");
 
+
         Display display =getWindowManager().getDefaultDisplay();
+
         Point size =new Point();
         display.getSize(size);
         Log.d("Debugging","screeen size: "+size.toString());
         numberHorizontalPixels = size.x;
         numberVerticalPixels = size.y;
-        blockSize = numberHorizontalPixels / gridWidth;
-        gridHeight = numberVerticalPixels / blockSize;
+        this.blockSize = numberHorizontalPixels / gridWidth;
+        gridHeight = numberVerticalPixels / this.blockSize;
 
         blankBitmap = Bitmap.createBitmap(numberHorizontalPixels,
                 numberVerticalPixels,
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         canvas = new Canvas(blankBitmap);
         this.gameView = new ImageView(this);
         paint = new Paint();
-        gameView.setImageBitmap(blankBitmap);
+        this.gameView.setImageBitmap(blankBitmap);
 
         setContentView(gameView);
         draw();
@@ -73,13 +78,13 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawColor(Color.argb(255, 255, 255, 255));
         paint.setColor(Color.argb(255, 0, 0, 0));
         for(int i=0;i<numberHorizontalPixels;i++){
-            canvas.drawLine(blockSize * i, 0,
+            canvas.drawLine(this.blockSize * i, 0,
                     blockSize * i, numberVerticalPixels -1,
                     paint);
         }
 
         for(int i=0;i<numberHorizontalPixels;i++){
-            canvas.drawLine(0, blockSize * i,
+            canvas.drawLine(0, this.blockSize * i,
                     numberHorizontalPixels -1, blockSize * i,
                     paint);
         }
@@ -95,12 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 blockSize, blockSize * 1.75f,
                 paint);
 
-
-        for(int i=0;i<numberHorizontalPixels;i++){
-
-            canvas.drawLine(i+0 ,i+0,i+1,i+1,paint);
-        }
-        //printDebuggingText();
+        printDebuggingText();
     }
 
     public void printDebuggingText(){
@@ -139,16 +139,72 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         Log.d("Debugging", "In onTouchEvent");
-// Has the player removed their finger from the screen?
-        if((motionEvent.getAction() &
-                MotionEvent.ACTION_MASK)
-                == MotionEvent.ACTION_UP) {
-            String x=Float.toString(motionEvent.getX());
-// Process the player's shot by passing the
-// coordinates of the player's finger to takeShot
-            Log.d("Debugging",x);
+        // Has the player removed their finger from the screen?
+        if((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+
+            takeShot(motionEvent.getX(),motionEvent.getY());
+
+            Log.d("Debugging", "Lifted the finger");
+
+
+            // Process the player's shot by passing the
+            // coordinates of the player's finger to takeShot
+            //takeShot(motionEvent.getX(), motionEvent.getY());
         }
+
         return true;
+    }
+    protected void takeShot(float x,float y){
+
+        shotsTaken ++;
+        String shot_x=Float.toString(x);
+        String shot_y=Float.toString(y);
+        Log.d("Debugging","shot: "+shot_x+" "+shot_y);
+        int horizontalTouched = (int)x/ blockSize;
+        int verticalTouched = (int)y/ blockSize;
+        Log.d("Debugging","shot2: "+Integer.toString(horizontalTouched)+" "+Integer.toString(verticalTouched));
+
+        setContentView(gameView);
+        canvas.drawCircle((horizontalTouched-1)*blockSize,(verticalTouched-1)*blockSize,5,paint);
+
+
+        hit = horizontalTouched == subHorizontalPosition && verticalTouched == subVerticalPosition;
+
+        int horizontalGap = (int)horizontalTouched -
+                subHorizontalPosition;
+        int verticalGap = (int)verticalTouched -
+                subVerticalPosition;
+            // Use Pythagoras's theorem to get the
+            // distance travelled in a straight line
+        distanceFromSub = (int)Math.sqrt(
+                ((horizontalGap * horizontalGap) +
+                        (verticalGap * verticalGap)));
+// If there is a hit call boom
+        if(hit)
+            boom();
+// Otherwise call draw as usual
+        else draw();
+    }
+    protected void boom(){
+        gameView.setImageBitmap(blankBitmap);
+        // Wipe the screen with a red color
+        canvas.drawColor(Color.argb(255, 255, 0, 0));
+        // Draw some huge white text
+        paint.setColor(Color.argb(255, 255, 255, 255));
+        paint.setTextSize(blockSize * 10);
+        canvas.drawText("BOOM!", blockSize * 4,
+                blockSize * 14, paint);
+        // Draw some text to prompt restarting
+        paint.setTextSize(blockSize * 2);
+        canvas.drawText("Take a shot to start again",
+                blockSize * 8,
+                blockSize * 18, paint);
+        // Start a new game
+        newGame();
+    }
+    void newGame(){
+        shotsTaken=-1;
+        //draw();
     }
 
 }
