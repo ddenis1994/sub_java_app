@@ -2,7 +2,9 @@ package com.example.sub_hunter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.MotionEvent;
 
 import android.graphics.Bitmap;
@@ -12,7 +14,12 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.Display;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
     int gridHeight;
     float horizontalTouched = -100;
     float verticalTouched = -100;
-    int subHorizontalPosition=20;
-    int subVerticalPosition=20;
+    Random ran=new Random();
+    int subHorizontalPosition;
+    int subVerticalPosition;
     boolean hit = false;
     int shotsTaken;
     int distanceFromSub;
@@ -33,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     Bitmap blankBitmap;
     Canvas canvas;
     Paint paint;
+    ArrayList<Point> hits;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +51,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 
 
-        setContentView(R.layout.activity_main);
+
         Log.d("Debugging","in onCreath");
-
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         Display display =getWindowManager().getDefaultDisplay();
 
@@ -69,11 +82,15 @@ public class MainActivity extends AppCompatActivity {
         this.gameView.setImageBitmap(blankBitmap);
 
         setContentView(gameView);
+        this.hits=new ArrayList<>();
+        subHorizontalPosition=ran.nextInt(numberHorizontalPixels/blockSize);
+        subVerticalPosition=ran.nextInt(numberVerticalPixels/blockSize);
+
         draw();
 
     }
     void draw() {
-        gameView.setImageBitmap(blankBitmap);
+        //gameView.setImageBitmap(blankBitmap);
         // Wipe the screen with a white color
         canvas.drawColor(Color.argb(255, 255, 255, 255));
         paint.setColor(Color.argb(255, 0, 0, 0));
@@ -89,13 +106,15 @@ public class MainActivity extends AppCompatActivity {
                     paint);
         }
         // Draw the player's shot
-        canvas.drawRect(horizontalTouched * blockSize,
-                verticalTouched * blockSize,
-                (horizontalTouched * blockSize) + blockSize,
-                (verticalTouched * blockSize)+ blockSize,
-                paint );
 
 
+        for (Point x : this.hits){
+            canvas.drawRect(x.x * blockSize,
+                    x.y * blockSize,
+                    (x.x * blockSize) + blockSize,
+                    (x.y * blockSize)+ blockSize,
+                    paint );
+        }
 
         paint.setTextSize(blockSize * 2);
         paint.setColor(Color.argb(255, 0, 0, 255));
@@ -136,8 +155,7 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawText("shotsTaken = " +
                         shotsTaken,
                 50, blockSize * 13, paint);
-        canvas.drawText("debugging = " + debugging,
-                50, blockSize * 12, paint);
+
 
 
     }
@@ -168,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
          horizontalTouched = (int)x/ blockSize;
          verticalTouched = (int)y/ blockSize;
 
+
         setContentView(gameView);
         canvas.drawCircle((horizontalTouched-1)*blockSize,(verticalTouched-1)*blockSize,5,paint);
 
@@ -187,7 +206,11 @@ public class MainActivity extends AppCompatActivity {
         if(hit)
             boom();
 // Otherwise call draw as usual
-        else draw();
+        else {
+
+           this.hits.add(new Point(((int) horizontalTouched),(int)verticalTouched));
+            draw();
+        }
     }
     protected void boom(){
         gameView.setImageBitmap(blankBitmap);
@@ -207,8 +230,12 @@ public class MainActivity extends AppCompatActivity {
         newGame();
     }
     void newGame(){
-        shotsTaken=-1;
-        //draw();
+        Intent i=new Intent(MainActivity.this,LeaderBoured.class);
+        i.putExtra("score",Integer.toString(shotsTaken));
+
+        startActivity(i);
+      finish();
+
     }
 
 }
